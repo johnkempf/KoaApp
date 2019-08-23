@@ -1,0 +1,10 @@
+<h1>People App</h1>
+<ul class="list-group">
+    <% things.forEach( people => { %>
+    <a href="profile/<%=people.name%>"><li><%= people.name %></li></a>
+    <% }); %>
+</ul>
+
+<!-- <form action="/" method="POST">
+    <input type="submit" value="Save List" />
+</form> -->
