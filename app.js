@@ -82,7 +82,7 @@ async function showPerson(ctx) {
         // playlists.map(playlist => {
         //     playlist = personObject.name + " " + playlist;
         // });
-            console.log(playlists);
+           // console.log(playlists);
         await ctx.render("profile", {
             person: personObject,
             musicList: playlists
@@ -103,11 +103,11 @@ io.on("connection", socket => {
     });
 
     socket.on("playlistSelection", data => {
-        console.log(data);
-        QueryTracks(data)
-        .then(playlists => {
-           console.log(playlists);
+        QueryTracks(data).then(tracks => {
+           //console.log(tracks);
+            io.sockets.emit("TracksFound",tracks);
         });
+
     });
 });
 
@@ -115,6 +115,6 @@ io.on("connection", socket => {
 async function QueryTracks(data) {
     const db = await dbPromise;
     const query = "SELECT * from tracks WHERE Playlist = ?";
-    const playlists = await db.all(query, data.PlaylistId); 
-return playlists
+    const tracks = await db.all(query, data.PlaylistId); 
+    return tracks
 }
