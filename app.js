@@ -6,16 +6,18 @@ const render = require("koa-ejs");
 const bodyParser = require("koa-bodyparser");
 const fs = require("fs-extra");
 const sqlite = require("sqlite");
-const util = require("util");
 const socket = require("socket.io");
 const serve = require("koa-static");
 
 const app = new koa();
 const router = new koaRouter();
 const dbPromise = sqlite.open("./db/chinook.db", { Promise });
+
 app.use(json());
 app.use(bodyParser());
 app.use(serve(__dirname, "/public"));
+app.use(router.routes()).use(router.allowedMethods());
+
 
 //simple middleware
 render(app, {
@@ -30,7 +32,7 @@ render(app, {
 router.get("/", index);
 router.get("/add", showAdd);
 router.get("/profile/:person", showPerson);
-router.post("/add",   add);
+router.post("/add", add);8990
 
 async function index(ctx) {
         let rawdata = await fs.readFile("text.json");
@@ -80,7 +82,7 @@ async function showPerson(ctx) {
         // playlists.map(playlist => {
         //     playlist = personObject.name + " " + playlist;
         // });
-
+            console.log(playlists);
         await ctx.render("profile", {
             person: personObject,
             musicList: playlists
@@ -90,16 +92,29 @@ async function showPerson(ctx) {
     }
 }
 
-//router middleware
-app.use(router.routes()).use(router.allowedMethods());
 const server = app.listen(3000, () => console.log("server started"));
 var io = socket(server);
 
 io.on("connection", socket => {
     console.log("Connected to socket!", socket.id);
 
-
     socket.on("btnClick", data => {
         io.sockets.emit("btnClick", data);
     });
+
+    socket.on("playlistSelection", data => {
+        console.log(data);
+        QueryTracks(data)
+        .then(playlists => {
+           console.log(playlists);
+        });
+    });
 });
+
+
+async function QueryTracks(data) {
+    const db = await dbPromise;
+    const query = "SELECT * from tracks WHERE Playlist = ?";
+    const playlists = await db.all(query, data.PlaylistId); 
+return playlists
+}

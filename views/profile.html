@@ -20,15 +20,12 @@
             >
                 Playlists:
             </button>
-            <div class="dropdown-menu">
+            <div class="dropdown-menu" id="playlistBtnList">
                 <% musicList.forEach( playlists => { %>
-                <a class="dropdown-item" href="#"><%=playlists.Name%></a>
+                <a class="dropdown-item" href="#" id="<%=playlists.PlaylistId%>">
+                    <%=playlists.Name%>
+                </a>
                 <% }); %>
-                <!-- <a class="dropdown-item" href="#">Action</a>
-                <a class="dropdown-item" href="#">Another action</a>
-                <a class="dropdown-item" href="#">Something else here</a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="#">Separated link</a> -->
             </div>
         </div>
         <div>
@@ -36,5 +33,6 @@
             <button id="sendBtn" class="btn btn-primary">Send</button>
         </div>
         <div id="outputDiv"></div>
+        <script src="/public/script.js"></script>
     </body>
 </html>
