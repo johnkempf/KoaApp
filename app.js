@@ -18,7 +18,6 @@ app.use(bodyParser());
 app.use(serve(__dirname, "/public"));
 app.use(router.routes()).use(router.allowedMethods());
 
-
 //simple middleware
 render(app, {
     root: path.join(__dirname, "views"),
@@ -32,18 +31,20 @@ render(app, {
 router.get("/", index);
 router.get("/add", showAdd);
 router.get("/profile/:person", showPerson);
-router.post("/add", add);8990
+router.get("/delete", showDelete);
+router.post("/add", add);
 
 async function index(ctx) {
-        let rawdata = await fs.readFile("text.json");
-        let people = JSON.parse(rawdata);
-        await ctx.render("index", { things: people 
-    });
+    let rawdata = await fs.readFile("text.json");
+    let people = JSON.parse(rawdata);
+    await ctx.render("index", { things: people });
 }
 
 async function showAdd(ctx) {
     await ctx.render("add");
 }
+
+async function showDelete(ctx) {}
 
 async function add(ctx) {
     const body = ctx.request.body;
@@ -77,12 +78,18 @@ async function showPerson(ctx) {
 
         const db = await dbPromise;
         const playlists = await db.all("SELECT * from playlists");
+
+        for (let key in playlists) {
+            let obj = playlists[key];
+            let tracksPerPlaylist = await db.get(
+                "SELECT Count(*) FROM Tracks WHERE Playlist = ?",
+                obj.PlaylistId
+            );
+
+            playlists[key].TracksPerPlaylist = tracksPerPlaylist["Count(*)"];
+        }
+
         //console.log(playlists);
-        //******/have to make separate map function look at graph example*****
-        // playlists.map(playlist => {
-        //     playlist = personObject.name + " " + playlist;
-        // });
-           // console.log(playlists);
         await ctx.render("profile", {
             person: personObject,
             musicList: playlists
@@ -104,17 +111,14 @@ io.on("connection", socket => {
 
     socket.on("playlistSelection", data => {
         QueryTracks(data).then(tracks => {
-           //console.log(tracks);
-            io.sockets.emit("TracksFound",tracks);
+            io.sockets.emit("TracksFound", tracks);
         });
-
     });
 });
-
 
 async function QueryTracks(data) {
     const db = await dbPromise;
     const query = "SELECT * from tracks WHERE Playlist = ?";
-    const tracks = await db.all(query, data.PlaylistId); 
-    return tracks
+    const tracks = await db.all(query, data.PlaylistId);
+    return tracks;
 }

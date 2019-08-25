@@ -1,3 +1,5 @@
 1. Add a remove person header link
 2.possibly create a db table to hold the favorite songs of each person permanently.
 3. more random js practice
+4. figure out how to push changes to github
+5. figure out why style sheet is not loading on profile page.
